@@ -259,7 +259,7 @@ export const CUIAutoComplete = <T extends Item>(
       {/* -----------Section that renders the input element ----------------- */}
 
       {/* -----------Section that renders the Menu Lists Component ----------------- */}
-      <Box pb={4} mb={4}>
+      <Box h='80px' overflowY='auto' pb={4} mb={4}>
         <List
           bg='white'
           borderRadius='4px'
@@ -269,11 +269,9 @@ export const CUIAutoComplete = <T extends Item>(
           {...getMenuProps()}
         >
           {isOpen &&
-            inputItems.length !== 0 &&
+            inputValue != '' &&
             inputItems.map((item, index) => (
               <ListItem
-                h='70px'
-                overflowY='auto'
                 px={2}
                 py={1}
                 borderBottom='1px solid rgba(0,0,0,0.01)'
