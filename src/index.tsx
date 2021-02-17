@@ -269,8 +269,11 @@ export const CUIAutoComplete = <T extends Item>(
           {...getMenuProps()}
         >
           {isOpen &&
+            inputItems.length !== 0 &&
             inputItems.map((item, index) => (
               <ListItem
+                h='70px'
+                overflowY='auto'
                 px={2}
                 py={1}
                 borderBottom='1px solid rgba(0,0,0,0.01)'
