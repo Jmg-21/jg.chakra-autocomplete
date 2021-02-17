@@ -92,6 +92,7 @@ export const CUIAutoComplete = <T extends Item>(
 
   /* Refs */
   const disclosureRef = React.useRef(null)
+  const btnRef = React.useRef(null)
 
   /* Downshift Props */
   const {
@@ -120,18 +121,20 @@ export const CUIAutoComplete = <T extends Item>(
     selectedItem: undefined,
     items: inputItems,
     onInputValueChange: ({ inputValue, selectedItem }) => {
-      const filteredItems = optionFilterFunc(items, inputValue || '')
-
-      if (isCreating && filteredItems.length > 0) {
-        setIsCreating(false)
-      }
-
-      if (!selectedItem) {
-        setInputItems(filteredItems)
+      // console.log('onInputValueChange', inputValue !== '')
+      if (inputValue !== '') {
+        const filteredItems = optionFilterFunc(items, inputValue || '')
+        if (isCreating && filteredItems.length > 0) {
+          setIsCreating(false)
+        }
+        if (!selectedItem) {
+          setInputItems(filteredItems)
+        }
       }
     },
     stateReducer: (state, actionAndChanges) => {
       const { changes, type } = actionAndChanges
+      // console.log('stateReducer', changes, type)
       switch (type) {
         case useCombobox.stateChangeTypes.InputBlur:
           return {
@@ -244,13 +247,15 @@ export const CUIAutoComplete = <T extends Item>(
               placeholder,
               onClick: isOpen ? () => {} : openMenu,
               onFocus: isOpen ? () => {} : openMenu,
-              ref: disclosureRef
+              ref: disclosureRef,
+              refKey: 'innerRef'
             })
           )}
         />
         <Button
           {...toggleButtonStyleProps}
           {...getToggleButtonProps()}
+          ref={btnRef}
           aria-label='toggle menu'
         >
           <Search2Icon />
@@ -259,63 +264,65 @@ export const CUIAutoComplete = <T extends Item>(
       {/* -----------Section that renders the input element ----------------- */}
 
       {/* -----------Section that renders the Menu Lists Component ----------------- */}
-      <Box h='80px' overflowY='auto' pb={4} mb={4}>
-        <List
-          bg='white'
-          borderRadius='4px'
-          border={isOpen && '1px solid rgba(0,0,0,0.1)'}
-          boxShadow='6px 5px 8px rgba(0,50,30,0.02)'
-          {...listStyleProps}
-          {...getMenuProps()}
-        >
-          {isOpen &&
-            inputValue != '' &&
-            inputItems.map((item, index) => (
-              <ListItem
-                px={2}
-                py={1}
-                borderBottom='1px solid rgba(0,0,0,0.01)'
-                {...listItemStyleProps}
-                bg={highlightedIndex === index ? highlightItemBg : 'inherit'}
-                key={`${item.value}${index}`}
-                {...getItemProps({ item, index })}
-              >
-                {isCreating ? (
-                  <Text>
-                    <Box as='span'>{createText}</Box>{' '}
-                    <Box as='span' bg='yellow.300' fontWeight='bold'>
-                      "{item.label}"
-                    </Box>
-                    <Box as='span'>?</Box>
-                  </Text>
-                ) : (
-                  <Box display='inline-flex' alignItems='center'>
-                    {selectedItemValues.includes(item.value) && (
-                      <ListIcon
-                        as={icon || CheckCircleIcon}
-                        color='green.500'
-                        role='img'
-                        display='inline'
-                        aria-label='Selected'
-                        {...selectedIconProps}
-                      />
-                    )}
+      {inputValue !== '' && (
+        <Box h='80px' overflowY='auto' pb={4} mb={4}>
+          <List
+            bg='white'
+            borderRadius='4px'
+            border={isOpen && '1px solid rgba(0,0,0,0.1)'}
+            boxShadow='6px 5px 8px rgba(0,50,30,0.02)'
+            {...listStyleProps}
+            {...getMenuProps()}
+          >
+            {isOpen &&
+              inputItems.map((item, index) => (
+                <ListItem
+                  px={2}
+                  py={1}
+                  borderBottom='1px solid rgba(0,0,0,0.01)'
+                  {...listItemStyleProps}
+                  bg={highlightedIndex === index ? highlightItemBg : 'inherit'}
+                  key={`${item.value}${index}`}
+                  {...getItemProps({ item, index })}
+                >
+                  {isCreating ? (
+                    <Text>
+                      <Box as='span'>{createText}</Box>{' '}
+                      <Box as='span' bg='yellow.300' fontWeight='bold'>
+                        "{item.label}"
+                      </Box>
+                      <Box as='span'>?</Box>
+                    </Text>
+                  ) : (
+                    <Box display='inline-flex' alignItems='center'>
+                      {selectedItemValues.includes(item.value) && (
+                        <ListIcon
+                          as={icon || CheckCircleIcon}
+                          color='green.500'
+                          role='img'
+                          display='inline'
+                          aria-label='Selected'
+                          {...selectedIconProps}
+                        />
+                      )}
 
-                    {itemRenderer ? (
-                      itemRenderer(item)
-                    ) : (
-                      <Highlighter
-                        autoEscape
-                        searchWords={[inputValue || '']}
-                        textToHighlight={defaultItemRenderer(item)}
-                      />
-                    )}
-                  </Box>
-                )}
-              </ListItem>
-            ))}
-        </List>
-      </Box>
+                      {itemRenderer ? (
+                        itemRenderer(item)
+                      ) : (
+                        <Highlighter
+                          autoEscape
+                          searchWords={[inputValue || '']}
+                          textToHighlight={defaultItemRenderer(item)}
+                        />
+                      )}
+                    </Box>
+                  )}
+                </ListItem>
+              ))}
+          </List>
+        </Box>
+      )}
+
       {/* ----------- End Section that renders the Menu Lists Component ----------------- */}
     </Stack>
   )
